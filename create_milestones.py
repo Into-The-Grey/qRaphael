@@ -3,7 +3,7 @@ from github import Github
 
 # Get GitHub token from environment variables
 token = os.getenv("READ_GEN_TOKEN")
-repo_name = "your_name/your_repo"
+repo_name = "Into-The-Grey/qRaphael"
 g = Github(token)
 repo = g.get_repo(repo_name)
 
