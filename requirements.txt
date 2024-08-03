@@ -1,0 +1,23 @@
+# Core packages
+numpy
+pandas
+scikit-learn
+
+# Deep Learning frameworks
+tensorflow
+torch
+transformers
+
+# Model-specific dependencies
+google-cloud-storage
+
+# Jupyter notebooks
+jupyterlab
+
+# Visualization
+matplotlib
+seaborn
+
+# Utility packages
+tqdm
+requests
