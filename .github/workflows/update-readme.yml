@@ -1,0 +1,28 @@
+name: Update README
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Runs every hour
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Update README
+        run: |
+          python update_readme.py
+        env:
+          READ_GEN_TOKEN: ${{ secrets.READ_GEN_TOKEN }}
+          
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "Automated update to README.md"
+          git push
+        env:
+          READ_GEN_TOKEN: ${{ secrets.READ_GEN_TOKEN }}
