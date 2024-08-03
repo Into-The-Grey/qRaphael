@@ -7,11 +7,6 @@ repo_name = "Into-The-Grey/qRaphael"
 g = Github(token)
 repo = g.get_repo(repo_name)
 
-# Step 1: Clear Existing Milestones
-existing_milestones = repo.get_milestones()
-for milestone in existing_milestones:
-    milestone.delete()
-
 # Define expanded phases and milestones
 phases = {
     "Phase 1: Initial Setup and Infrastructure": [
@@ -120,14 +115,66 @@ phases = {
     ]
 }
 
-# Step 2: Create Unique Milestones
+# Step 1: Get existing milestones
+existing_milestones = repo.get_milestones()
+existing_milestone_titles = [milestone.title for milestone in existing_milestones]
+
+# Step 2: Create milestones if they don't already exist
 for phase, milestones in phases.items():
     for milestone in milestones:
         milestone_title = f"{phase} - {milestone}"
-        repo.create_milestone(
-            title=milestone_title,
-            state="open",
-            description=f"Milestone for {milestone} in {phase}"
+        if milestone_title not in existing_milestone_titles:
+            repo.create_milestone(
+                title=milestone_title,
+                state="open",
+                description=f"Milestone for {milestone} in {phase}"
+            )
+
+# Define new labels to avoid duplicates
+labels = [
+    {"name": "backend", "color": "f9d0c4", "description": "Related to backend"},
+    {"name": "frontend", "color": "c2e0c6", "description": "Related to frontend"},
+    {"name": "design", "color": "e99695", "description": "Design-related issue"},
+    {"name": "testing", "color": "9cd8de", "description": "Testing-related issue"},
+    {"name": "devops", "color": "e5e5e5", "description": "DevOps-related issue"},
+    {"name": "ux", "color": "ffa500", "description": "User experience improvement"},
+    {"name": "ai", "color": "00ff00", "description": "Artificial Intelligence related"},
+    {"name": "ml", "color": "6600cc", "description": "Machine Learning related"},
+    {"name": "data", "color": "ff9900", "description": "Data-related issue"},
+    {"name": "automation", "color": "ff5050", "description": "Automation tasks"},
+    {"name": "research", "color": "800000", "description": "Research tasks"},
+    {"name": "maintenance", "color": "008000", "description": "Maintenance tasks"},
+    {"name": "compatibility", "color": "000080", "description": "Compatibility issues"},
+    {"name": "api", "color": "00cccc", "description": "API-related tasks"},
+    {"name": "integration", "color": "0066cc", "description": "Integration tasks"},
+    {"name": "optimization", "color": "ffcc99", "description": "Optimization tasks"},
+    {"name": "performance", "color": "00cc99", "description": "Performance improvements"},
+    {"name": "security", "color": "cc0033", "description": "Security-related issues"},
+    {"name": "infrastructure", "color": "ffcc00", "description": "Infrastructure-related tasks"},
+    {"name": "operations", "color": "660066", "description": "Operations-related tasks"},
+    {"name": "support", "color": "ff33cc", "description": "Support tasks"},
+    {"name": "refactor", "color": "cccc00", "description": "Code refactoring"},
+    {"name": "testing", "color": "99ccff", "description": "Testing improvements"},
+    {"name": "monitoring", "color": "ff6666", "description": "Monitoring tasks"},
+    {"name": "logging", "color": "9999ff", "description": "Logging-related tasks"},
+    {"name": "build", "color": "ccffcc", "description": "Build-related tasks"},
+    {"name": "deployment", "color": "ff9966", "description": "Deployment tasks"},
+    {"name": "architecture", "color": "cc6699", "description": "Architecture-related tasks"},
+    {"name": "prototype", "color": "ff99cc", "description": "Prototype-related tasks"},
+    {"name": "evaluation", "color": "6699cc", "description": "Evaluation-related tasks"}
+]
+
+# Step 3: Get existing labels
+existing_labels = repo.get_labels()
+existing_label_names = [label.name for label in existing_labels]
+
+# Step 4: Create labels if they don't already exist
+for label in labels:
+    if label["name"] not in existing_label_names:
+        repo.create_label(
+            name=label["name"],
+            color=label["color"],
+            description=label["description"]
         )
 
-print("Milestones created!")
+print("Milestones and labels created!")
