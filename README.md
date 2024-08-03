@@ -1,3 +1,4 @@
+[![CodeQL](https://github.com/Into-The-Grey/qRaphael/actions/workflows/github-code-scanning/codeql/badge.svg?branch=main)](https://github.com/Into-The-Grey/qRaphael/actions/workflows/github-code-scanning/codeql)
 # qRaphael-2b-it
 
 ## Introduction
