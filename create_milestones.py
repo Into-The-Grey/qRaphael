@@ -154,7 +154,6 @@ labels = [
     {"name": "operations", "color": "660066", "description": "Operations-related tasks"},
     {"name": "support", "color": "ff33cc", "description": "Support tasks"},
     {"name": "refactor", "color": "cccc00", "description": "Code refactoring"},
-    {"name": "testing", "color": "99ccff", "description": "Testing improvements"},
     {"name": "monitoring", "color": "ff6666", "description": "Monitoring tasks"},
     {"name": "logging", "color": "9999ff", "description": "Logging-related tasks"},
     {"name": "build", "color": "ccffcc", "description": "Build-related tasks"},
@@ -165,12 +164,14 @@ labels = [
 ]
 
 # Step 3: Get existing labels
-existing_labels = repo.get_labels()
-existing_label_names = [label.name for label in existing_labels]
+existing_labels = {label.name: label for label in repo.get_labels()}
 
-# Step 4: Create labels if they don't already exist
+# Step 4: Create or update labels
 for label in labels:
-    if label["name"] not in existing_label_names:
+    if label["name"] in existing_labels:
+        existing_label = existing_labels[label["name"]]
+        existing_label.edit(name=label["name"], color=label["color"], description=label["description"])
+    else:
         repo.create_label(
             name=label["name"],
             color=label["color"],
