@@ -1,0 +1,45 @@
+name: Project Automation
+
+on:
+  issues:
+    types: [opened, edited, labeled]
+  pull_request:
+    types: [opened, edited, labeled]
+
+jobs:
+  project-automation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Move issue to To Do
+        if: github.event.issue
+        run: |
+          ISSUE_NUMBER=$(jq --raw-output .issue.number "${GITHUB_EVENT_PATH}")
+          gh project issue add {your-org-or-username}/{your-repo-name} ${ISSUE_NUMBER} --column "To Do"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Move PR to In Progress
+        if: github.event.pull_request
+        run: |
+          PR_NUMBER=$(jq --raw-output .pull_request.number "${GITHUB_EVENT_PATH}")
+          gh project issue add {your-org-or-username}/{your-repo-name} ${PR_NUMBER} --column "In Progress"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Move issue based on label
+        if: github.event.issue && github.event.action == 'labeled'
+        run: |
+          LABEL=$(jq --raw-output .label.name "${GITHUB_EVENT_PATH}")
+          ISSUE_NUMBER=$(jq --raw-output .issue.number "${GITHUB_EVENT_PATH}")
+          if [ "$LABEL" == "bug" ]; then
+            gh project issue move {your-org-or-username}/{your-repo-name} ${ISSUE_NUMBER} --column "To Do"
+          elif [ "$LABEL" == "enhancement" ]; then
+            gh project issue move {your-org-or-username}/{your-repo-name} ${ISSUE_NUMBER} --column "In Progress"
+          elif [ "$LABEL" == "question" ]; then
+            gh project issue move {your-org-or-username}/{your-repo-name} ${ISSUE_NUMBER} --column "Review"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
