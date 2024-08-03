@@ -7,6 +7,11 @@ repo_name = "Into-The-Grey/qRaphael"
 g = Github(token)
 repo = g.get_repo(repo_name)
 
+# Step 1: Clear Existing Milestones
+existing_milestones = repo.get_milestones()
+for milestone in existing_milestones:
+    milestone.delete()
+
 # Define expanded phases and milestones
 phases = {
     "Phase 1: Initial Setup and Infrastructure": [
@@ -115,7 +120,7 @@ phases = {
     ]
 }
 
-# Create milestones for each phase and path
+# Step 2: Create Unique Milestones
 for phase, milestones in phases.items():
     for milestone in milestones:
         milestone_title = f"{phase} - {milestone}"
