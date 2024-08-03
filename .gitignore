@@ -1,1 +1,147 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Jupyter notebooks
+.ipynb_checkpoints
+
+# PyCharm
+.idea/
+*.iml
+
+# VS Code
+.vscode/
 .vscode/settings.json
+
+# Visual Studio Code metadata files
+.history/
+
+# Pytest
+.cache/
+pytest_cache/
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# End of https://www.toptal.com/developers/gitignore/api/python
+
+# Data directories
+data/
+datasets/
+
+# Models directory
+models/
+
+# Docker files
+docker-compose.yml
+Dockerfile
+
+# Environment variables
+.env
+
+# Logs
+logs/
+*.log
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Editable project files
+*.swp
+*~
+
+# Notebook checkpoints
+.ipynb_checkpoints
+
+# Environment directories
+.env/
+.venv/
+env/
+venv/
+
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints/
+
+# Node modules (if any node.js is used)
+node_modules/
+
+# Temporary files and folders
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.backup
+*.swp
+*~
+
+# JetBrains IDEs
+.idea/
+*.iml
+
+# VSCode settings
+.vscode/
+.history/
+
+# Test result files
+results/
+/create_milestones.py
+/update_readme.py
