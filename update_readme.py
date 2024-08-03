@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from github import Github
 
 # Get GitHub token from environment variables
-token = os.getenv("GITHUB_TOKEN")
+token = os.getenv("READ_GEN_TOKEN")
 repo_name = "your-username/your-repo"
 g = Github(token)
 repo = g.get_repo(repo_name)
