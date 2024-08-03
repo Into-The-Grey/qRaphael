@@ -21,3 +21,4 @@ seaborn
 # Utility packages
 tqdm
 requests
+BitsAndBytes
