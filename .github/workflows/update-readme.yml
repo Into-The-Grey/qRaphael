@@ -1,28 +1,73 @@
-name: Update README
+name: Project Automation
 
 on:
   schedule:
-    - cron: '0 * * * *' # Runs every hour
+    - cron: '0 * * * *'
+  push:
+    branches:
+      - main
 
 jobs:
-  update-readme:
+  project-automation:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-      
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install PyGithub
+
       - name: Update README
-        run: |
-          python update_readme.py
+        run: python update_readme.py
         env:
           READ_GEN_TOKEN: ${{ secrets.READ_GEN_TOKEN }}
-          
-      - name: Commit and Push Changes
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
+
+      - name: Install GitHub CLI
+        run: npm install -g @octokit/graphql @actions/github @actions/core
+
+      - name: Move issue to To Do
+        if: github.event.issue
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add README.md
-          git commit -m "Automated update to README.md"
-          git push
+          ISSUE_NUMBER=$(jq --raw-output .issue.number "${GITHUB_EVENT_PATH}")
+          gh project issue add Into-The-Grey/qRaphael ${ISSUE_NUMBER} --column "To Do"
         env:
-          READ_GEN_TOKEN: ${{ secrets.READ_GEN_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.READ_GEN_TOKEN }}
+
+      - name: Move PR to In Progress
+        if: github.event.pull_request
+        run: |
+          PR_NUMBER=$(jq --raw-output .pull_request.number "${GITHUB_EVENT_PATH}")
+          gh project issue add Into-The-Grey/qRaphael ${PR_NUMBER} --column "In Progress"
+        env:
+          GITHUB_TOKEN: ${{ secrets.READ_GEN_TOKEN }}
+
+      - name: Move issue based on label
+        if: github.event.issue && github.event.action == 'labeled'
+        run: |
+          LABEL=$(jq --raw-output .label.name "${GITHUB_EVENT_PATH}")
+          ISSUE_NUMBER=$(jq --raw-output .issue.number "${GITHUB_EVENT_PATH}")
+          if [ "$LABEL" == "bug" ]; then
+            gh project issue move Into-The-Grey/qRaphael ${ISSUE_NUMBER} --column "To Do"
+          elif [ "$LABEL" == "enhancement" ]; then
+            gh project issue move Into-The-Grey/qRaphael ${ISSUE_NUMBER} --column "In Progress"
+          elif [ "$LABEL" == "question" ]; then
+            gh project issue move Into-The-Grey/qRaphael ${ISSUE_NUMBER} --column "Review"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.READ_GEN_TOKEN }}
+
+      - name: Post automation summary
+        if: always()
+        run: echo "Project automation workflow completed"
