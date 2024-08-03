@@ -23,23 +23,21 @@ The repository is organized as follows:
 
     qRaphael-2b-it/
     ├── data/
-    ├── models/
+    ├── src/
     ├── notebooks/
     ├── scripts/
-    ├── src/
+    ├── models/
     │ └── qraphael/
     ├── tests/
-    ├── Dockerfile
     ├── requirements.txt
     └── README.md
 
 - **data/**: Directory for storing datasets.
-- **models/**: Pre-trained and fine-tuned models.
+- **src/**: Pre-trained and fine-tuned models.
 - **notebooks/**: Jupyter notebooks for experimentation and analysis.
 - **scripts/**: Utility scripts for data processing, model training, etc.
-- **src/qraphael/**: Core library code.
+- **models/qraphael/**: Core library code.
 - **tests/**: Unit and integration tests.
-- **Dockerfile**: Docker configuration for the project.
 - **requirements.txt**: Python dependencies.
 - **README.md**: Project documentation.
 
@@ -60,9 +58,6 @@ To get started with the qRaphael-2b-it project, follow these steps:
 3. **Install dependencies:**
 
     pip install -r requirements.txt
-
-4. **Set up Docker (optional):**
-    docker build -t qraphael-2b-it .
 
 ## Usage
 
