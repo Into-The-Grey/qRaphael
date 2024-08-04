@@ -1,0 +1,119 @@
+import argparse
+import logging
+import os
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+from tqdm import tqdm
+import subprocess
+
+# Define constants
+MODEL_ID = "google/Gemma-2-2b-it"  # The model you are using
+MODEL_SAVE_DIR = "/home/ncacord/qRaphael/models/qRaphael-2b-it"
+LOG_DIR = "/home/ncacord/qRaphael/logs"
+CACHE_DIR = "./cache"
+
+# Ensure directories exist
+os.makedirs(MODEL_SAVE_DIR, exist_ok=True)
+os.makedirs(LOG_DIR, exist_ok=True)
+
+# Paths for logging
+STANDARD_LOG_PATH = os.path.join(LOG_DIR, "standard/model_init_logs.log")
+TRACE_LOG_PATH = os.path.join(LOG_DIR, "trace/trace_model_init_logs.log")
+
+# Argument parser setup
+parser = argparse.ArgumentParser(
+    description="Load and run a quantized model with logging."
+)
+parser.add_argument("--trace", action="store_true", help="Enable trace-level logging.")
+args = parser.parse_args()
+
+# Logging configuration
+log_level = logging.DEBUG if args.trace else logging.INFO
+log_file = TRACE_LOG_PATH if args.trace else STANDARD_LOG_PATH
+
+logging.basicConfig(
+    level=log_level,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.FileHandler(log_file), logging.StreamHandler()],
+)
+
+logger = logging.getLogger(__name__)
+
+
+def load_and_quantize_model(model_id, quantization_config):
+    """
+    Load and quantize the model using the provided configuration.
+
+    Args:
+    - model_id (str): The model identifier.
+    - quantization_config (BitsAndBytesConfig): The quantization configuration.
+
+    Returns:
+    - tokenizer: The tokenizer associated with the model.
+    - model: The quantized model.
+    """
+    logger.info("Loading tokenizer...")
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
+
+    logger.info("Loading and quantizing model...")
+    model = AutoModelForCausalLM.from_pretrained(
+        model_id,
+        quantization_config=quantization_config,
+        device_map="auto",  # Automatically map model across available GPUs
+        torch_dtype=torch.bfloat16,
+        cache_dir=CACHE_DIR,
+        trust_remote_code=True,
+    )
+    return tokenizer, model
+
+
+def save_model_and_tokenizer(model, tokenizer, save_directory):
+    """
+    Save the model and tokenizer to the specified directory.
+
+    Args:
+    - model: The model to save.
+    - tokenizer: The tokenizer to save.
+    - save_directory (str): The directory to save the model and tokenizer.
+    """
+    logger.info("Saving model and tokenizer...")
+    model.save_pretrained(save_directory)
+    tokenizer.save_pretrained(save_directory)
+    logger.info(f"Model and tokenizer saved to {save_directory}")
+
+
+def log_telemetry():
+    """
+    Log GPU telemetry using nvidia-smi.
+    """
+    logger.info("Running nvidia-smi for telemetry...")
+    result = subprocess.run(["nvidia-smi"], stdout=subprocess.PIPE)
+    logger.info(result.stdout.decode("utf-8"))
+
+
+def main():
+    """
+    Main function to load, quantize, and save the model, and log telemetry.
+    """
+    quantization_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_use_double_quant=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=torch.bfloat16,
+    )
+
+    with tqdm(total=100, desc="Loading and quantizing model") as pbar:
+        tokenizer, model = load_and_quantize_model(MODEL_ID, quantization_config)
+        pbar.update(50)
+
+        save_model_and_tokenizer(model, tokenizer, MODEL_SAVE_DIR)
+        pbar.update(50)
+
+    log_telemetry()
+    torch.cuda.empty_cache()
+    logger.info("Script completed successfully.")
+
+
+if __name__ == "__main__":
+    os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+    main()

@@ -13,6 +13,7 @@ google-cloud-storage
 
 # Jupyter notebooks
 jupyterlab
+jupyter
 
 # Visualization
 matplotlib
@@ -21,4 +22,52 @@ seaborn
 # Utility packages
 tqdm
 requests
-BitsAndBytes
+pydantic
+scipy
+scikit-image
+pillow
+
+# Quantization
+bitsandbytes
+accelerate
+
+# Text processing
+# nltk
+# spacy
+# textblob
+
+# Audio processing
+# librosa
+# pydub
+
+# Image processing
+# opencv-python
+# imageio
+
+# Databases
+sqlalchemy
+psycopg2-binary
+
+# Web scraping
+# beautifulsoup4
+# scrapy
+
+# Time series
+# statsmodels
+# prophet
+
+# Reinforcement learning
+# stable-baselines3
+# gym
+
+# NLP
+# sentence-transformers
+# gensim
+
+# Model serving
+# fastapi
+# uvicorn
+# torchserve
+
+# Model monitoring
+# prometheus-client
