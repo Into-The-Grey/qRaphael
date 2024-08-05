@@ -1,5 +1,15 @@
-[![CodeQL](https://github.com/Into-The-Grey/qRaphael/actions/workflows/github-code-scanning/codeql/badge.svg?branch=main)](https://github.com/Into-The-Grey/qRaphael/actions/workflows/github-code-scanning/codeql)
 # qRaphael-2b-it
+
+![Build Status](https://github.com/Into-The-Grey/qRaphael/actions/workflows/project-automation.yml/badge.svg)
+![License](https://img.shields.io/github/license/Into-The-Grey/qRaphael)
+![Code Quality](https://github.com/Into-The-Grey/qRaphael/actions/workflows/codeql-analysis.yml/badge.svg)
+![GitHub issues](https://img.shields.io/github/issues/Into-The-Grey/qRaphael)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/Into-The-Grey/qRaphael)
+![GitHub last commit](https://img.shields.io/github/last-commit/Into-The-Grey/qRaphael)
+![GitHub contributors](https://img.shields.io/github/contributors/Into-The-Grey/qRaphael)
+![GitHub forks](https://img.shields.io/github/forks/Into-The-Grey/qRaphael)
+![GitHub stars](https://img.shields.io/github/stars/Into-The-Grey/qRaphael)
+![GitHub watchers](https://img.shields.io/github/watchers/Into-The-Grey/qRaphael)
 
 ## Introduction
 
