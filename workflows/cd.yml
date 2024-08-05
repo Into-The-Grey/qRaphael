@@ -1,0 +1,30 @@
+name: CD
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.12
+
+    - name: Install dependencies
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install torch transformers bitsandbytes tqdm
+
+    - name: Deploy to Server
+      run: |
+        source venv/bin/activate
+        # Add your deployment commands here
+        ssh user@server "cd /path/to/project && git pull && systemctl restart project_service"
