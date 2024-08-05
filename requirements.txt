@@ -84,3 +84,7 @@ pytest
 # kubernetes
 # airflow
 
+# Privacy and security
+# cryptography
+# pyjwt
+python-dotenv
