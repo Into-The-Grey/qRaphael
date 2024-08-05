@@ -27,6 +27,8 @@ jobs:
         pip install torch transformers bitsandbytes tqdm pytest
 
     - name: Run tests
+      env:
+        PYTHONPATH: ${{ github.workspace }}
       run: |
         source venv/bin/activate
         pytest
