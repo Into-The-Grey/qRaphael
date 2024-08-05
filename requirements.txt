@@ -71,3 +71,16 @@ psycopg2-binary
 
 # Model monitoring
 # prometheus-client
+
+# Testing and CI/CD
+pytest
+# flake8
+# black
+# mypy
+# pylint
+
+# Deployment
+# docker
+# kubernetes
+# airflow
+

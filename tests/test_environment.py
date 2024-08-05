@@ -18,6 +18,10 @@ def test_logging_configuration(tmp_path):
     test_message = "This is a test log message."
     logger.info(test_message)
 
+    # Ensure all handlers are flushed
+    for handler in logger.handlers:
+        handler.flush()
+
     with open(log_file, "r") as file:
         log_contents = file.read()
 
