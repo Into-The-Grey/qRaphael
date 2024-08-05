@@ -1,0 +1,22 @@
+{
+  "keywords": {
+    "moon": "Would you like to know more about space?",
+    "relativity": "Do you have any questions about Einstein's theory of relativity?",
+    "newton": "Would you like to hear more examples of Newton's laws in action?",
+    "law": "Would you like to hear more examples of Newton's laws in action?",
+    "bacon": "Are you interested in more information about different types of bacon?",
+    "story": "Would you like to hear another story or continue this one?",
+    "once upon a time": "Would you like to hear another story or continue this one?",
+    "python": "Do you need help with Python programming?",
+    "tensorflow": "Would you like to learn more about TensorFlow or PyTorch?",
+    "pytorch": "Would you like to learn more about TensorFlow or PyTorch?",
+    "king": "Would you like to hear more about the royal family?",
+    "queen": "Would you like to hear more about the royal family?",
+    "space": "Would you like to learn about other celestial bodies?",
+    "planet": "Would you like to learn about other celestial bodies?",
+    "gravity": "Do you have any specific questions about gravity?",
+    "programming": "Do you need more examples or explanations about programming?",
+    "code": "Do you need more examples or explanations about programming?"
+  },
+  "default_message": "Will that be all, or did you need something else?"
+}

@@ -2,8 +2,18 @@
 
 # Description: This file contains the logic for the text chat functionality.
 
+import json
 
-# Follow-up message logic
+# Load follow-up messages from the configuration file
+FOLLOWUP_CONFIG_FILE = "/home/ncacord/qRaphael/config/followup_messages.json"
+
+with open(FOLLOWUP_CONFIG_FILE, "r") as file:
+    followup_config = json.load(file)
+
+followup_messages = followup_config["keywords"]
+default_message = followup_config["default_message"]
+
+# Define the follow-up message logic
 def get_followup_message(prompt, generated_text):
     """
     Determine the follow-up message based on the prompt and generated text.
@@ -15,26 +25,17 @@ def get_followup_message(prompt, generated_text):
     Returns:
     - str: The follow-up message.
     """
-    # Define conditions based on the prompt
+    # Check for keywords in the prompt
     prompt_lower = prompt.lower()
-    if "moon" in prompt_lower:
-        return "Would you like to know more about space?"
-    elif "relativity" in prompt_lower:
-        return "Do you have any questions about Einstein's theory of relativity?"
-    elif "newton" in prompt_lower or "law" in prompt_lower:
-        return "Would you like to hear more examples of Newton's laws in action?"
-    elif "bacon" in prompt_lower:
-        return "Are you interested in more information about different types of bacon?"
-    elif "story" in prompt_lower or "once upon a time" in prompt_lower:
-        return "Would you like to hear another story or continue this one?"
+    for keyword, message in followup_messages.items():
+        if keyword in prompt_lower:
+            return message
 
-    # Define conditions based on the generated text
-    if "king" in generated_text.lower() or "queen" in generated_text.lower():
-        return "Would you like to hear more about the royal family?"
-    elif "space" in generated_text.lower() or "planet" in generated_text.lower():
-        return "Would you like to learn about other celestial bodies?"
-    elif "gravity" in generated_text.lower():
-        return "Do you have any specific questions about gravity?"
+    # Check for keywords in the generated text
+    generated_text_lower = generated_text.lower()
+    for keyword, message in followup_messages.items():
+        if keyword in generated_text_lower:
+            return message
 
     # Default follow-up message
-    return "Will that be all, or did you need something else?"
+    return default_message
