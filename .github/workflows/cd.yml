@@ -15,7 +15,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.12
+        python-version: '3.12'
 
     - name: Install dependencies
       run: |
@@ -24,7 +24,9 @@ jobs:
         pip install torch transformers bitsandbytes tqdm
 
     - name: Deploy to Server
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       run: |
-        source venv/bin/activate
-        # Add your deployment commands here
-        ssh user@server "cd /path/to/project && git pull && systemctl restart project_service"
+        echo "$SSH_PRIVATE_KEY" > private_key && chmod 600 private_key
+        ssh -o StrictHostKeyChecking=no -i private_key ncacord@0ly1mpu5 "cd /home/ncacord/qRaphael && git pull && systemctl restart project_service"
+        rm private_key
