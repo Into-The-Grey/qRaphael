@@ -1,8 +1,7 @@
 # qRaphael-2b-it
 
-![Build Status](https://github.com/Into-The-Grey/qRaphael/actions/workflows/project-automation.yml/badge.svg)
 ![License](https://img.shields.io/github/license/Into-The-Grey/qRaphael)
-![Code Quality](https://github.com/Into-The-Grey/qRaphael/actions/workflows/codeql-analysis.yml/badge.svg)
+[![CodeQL](https://github.com/Into-The-Grey/qRaphael/actions/workflows/codeql.yml/badge.svg)](https://github.com/Into-The-Grey/qRaphael/actions/workflows/codeql.yml)
 ![GitHub issues](https://img.shields.io/github/issues/Into-The-Grey/qRaphael)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/Into-The-Grey/qRaphael)
 ![GitHub last commit](https://img.shields.io/github/last-commit/Into-The-Grey/qRaphael)
