@@ -1,16 +1,31 @@
 # qRaphael-2b-it
 
-![License](https://img.shields.io/github/license/Into-The-Grey/qRaphael)
-[![CodeQL](https://github.com/Into-The-Grey/qRaphael/actions/workflows/codeql.yml/badge.svg)](https://github.com/Into-The-Grey/qRaphael/actions/workflows/codeql.yml)
-![GitHub issues](https://img.shields.io/github/issues/Into-The-Grey/qRaphael)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/Into-The-Grey/qRaphael)
-![GitHub last commit](https://img.shields.io/github/last-commit/Into-The-Grey/qRaphael)
-![GitHub contributors](https://img.shields.io/github/contributors/Into-The-Grey/qRaphael)
-![GitHub forks](https://img.shields.io/github/forks/Into-The-Grey/qRaphael)
-![GitHub stars](https://img.shields.io/github/stars/Into-The-Grey/qRaphael)
-![GitHub watchers](https://img.shields.io/github/watchers/Into-The-Grey/qRaphael)
+<p align="center">
+  <a href="https://github.com/Into-The-Grey/qRaphael/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/Into-The-Grey/qRaphael"></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/Into-The-Grey/qRaphael/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://github.com/Into-The-Grey/qRaphael/actions/workflows/codeql.yml/badge.svg"></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/Into-The-Grey/qRaphael/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/Into-The-Grey/qRaphael"></a>
+  <a href="https://github.com/Into-The-Grey/qRaphael/pulls"><img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/Into-The-Grey/qRaphael"></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/Into-The-Grey/qRaphael/graphs/contributors"><img alt="GitHub contributors" src="https://img.shields.io/github/contributors/Into-The-Grey/qRaphael"></a>
+  <a href="https://github.com/Into-The-Grey/qRaphael/network/members"><img alt="GitHub forks" src="https://img.shields.io/github/forks/Into-The-Grey/qRaphael"></a>
+  <a href="https://github.com/Into-The-Grey/qRaphael/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/Into-The-Grey/qRaphael"></a>
+  <a href="https://github.com/Into-The-Grey/qRaphael/watchers"><img alt="GitHub watchers" src="https://img.shields.io/github/watchers/Into-The-Grey/qRaphael"></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/Into-The-Grey/qRaphael/commits/main"><img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/Into-The-Grey/qRaphael"></a>
+</p>
 
 ## Introduction
+
 
 Welcome to the qRaphael-2b-it project! This is the first in a series of AI models under the qRaphael name. The qRaphael-2b-it model is based on Google's Gemma-2-2b-it model and is designed to push the boundaries of AI capabilities in natural language processing and understanding.
 
