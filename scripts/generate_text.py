@@ -1,6 +1,7 @@
 import argparse
 import logging
 import os
+import json
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
@@ -9,6 +10,12 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import tensorflow as tf
 
 tf.get_logger().setLevel("ERROR")
+
+# Import the follow-up message logic
+from logic.text_chat_logic import get_followup_message
+
+# Load generation parameters from the configuration file
+CONFIG_FILE = "/home/ncacord/qRaphael/config/text_gen_config.json"
 
 # Define constants
 MODEL_SAVE_DIR = "/home/ncacord/qRaphael/models/qRaphael-2b-it"
@@ -71,7 +78,22 @@ def load_model_and_tokenizer(model_dir):
     return tokenizer, model
 
 
-def generate_text(prompt, model, tokenizer, max_length):
+def load_config(config_file):
+    """
+    Load the configuration parameters from a JSON file.
+
+    Args:
+    - config_file (str): Path to the configuration file.
+
+    Returns:
+    - dict: The configuration parameters.
+    """
+    with open(config_file, "r") as file:
+        config = json.load(file)
+    return config
+
+
+def generate_text(prompt, model, tokenizer, config):
     """
     Generate text based on the provided prompt.
 
@@ -79,7 +101,7 @@ def generate_text(prompt, model, tokenizer, max_length):
     - prompt (str): The prompt to generate text from.
     - model: The model used for text generation.
     - tokenizer: The tokenizer used for text generation.
-    - max_length (int): The maximum length of the generated text.
+    - config (dict): The generation configuration parameters.
 
     Returns:
     - str: The generated text.
@@ -88,9 +110,24 @@ def generate_text(prompt, model, tokenizer, max_length):
         "cuda" if torch.cuda.is_available() else "cpu"
     )
     outputs = model.generate(
-        inputs.input_ids, max_length=max_length, num_return_sequences=1, do_sample=True
+        inputs.input_ids,
+        max_length=config["max_length"],
+        do_sample=config["do_sample"],
+        temperature=config["temperature"],
+        top_k=config["top_k"],
+        top_p=config["top_p"],
+        repetition_penalty=config["repetition_penalty"],
     )
-    return tokenizer.decode(outputs[0], skip_special_tokens=True)
+    generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+    # Post-process the text to ensure it ends at a sensible point
+    end_punctuation = [".", "!", "?"]
+    for punct in end_punctuation:
+        if punct in generated_text:
+            generated_text = generated_text[: generated_text.rfind(punct) + 1]
+            break
+
+    return generated_text
 
 
 def main():
@@ -99,6 +136,7 @@ def main():
     """
     logger.info("Starting text generation...")
     tokenizer, model = load_model_and_tokenizer(MODEL_SAVE_DIR)
+    config = load_config(CONFIG_FILE)
 
     if args.loop:
         try:
@@ -106,20 +144,20 @@ def main():
                 prompt = input("Enter a prompt: ")
                 if not prompt.strip():
                     continue
-                generated_text = generate_text(
-                    prompt, model, tokenizer, args.max_length
-                )
-                print(f"Generated text: {generated_text}")
+                generated_text = generate_text(prompt, model, tokenizer, config)
+                print(generated_text)
                 logger.info(f"Generated text for prompt '{prompt}': {generated_text}")
+
+                # Get the follow-up message
+                followup_message = get_followup_message(prompt, generated_text)
+                print(followup_message)
         except KeyboardInterrupt:
             print("\nExiting loop mode.")
             logger.info("Exiting loop mode.")
     else:
         if args.prompt:
-            generated_text = generate_text(
-                args.prompt, model, tokenizer, args.max_length
-            )
-            print(f"Generated text: {generated_text}")
+            generated_text = generate_text(args.prompt, model, tokenizer, config)
+            print(generated_text)
             logger.info(f"Generated text for prompt '{args.prompt}': {generated_text}")
         else:
             print(
