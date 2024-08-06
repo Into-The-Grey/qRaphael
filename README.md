@@ -26,7 +26,6 @@
 
 ## Introduction
 
-
 Welcome to the qRaphael-2b-it project! This is the first in a series of AI models under the qRaphael name. The qRaphael-2b-it model is based on Google's Gemma-2-2b-it model and is designed to push the boundaries of AI capabilities in natural language processing and understanding.
 
 ## Table of Contents
@@ -71,7 +70,7 @@ To get started with the qRaphael-2b-it project, follow these steps:
 
 1. **Clone the repository:**
 
-    [git clone](https://github.com/yourusername/qRaphael-2b-it.git)
+    git clone <https://github.com/yourusername/qRaphael-2b-it.git>
     cd qRaphael-2b-it
 
 2. **Set up a virtual environment:**
