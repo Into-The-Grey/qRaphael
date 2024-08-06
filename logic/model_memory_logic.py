@@ -782,3 +782,51 @@ def fetch_debts(user_id, conn):
             for result in results
         ]
         return debts    
+
+
+def fetch_request_changes(user_id, table, conn):
+    """
+    Fetch the request_changes status for the specified user from the given table.
+
+    Args:
+    - user_id (str): The user's unique identifier.
+    - table (str): The table name to fetch the status from.
+    - conn: Database connection object.
+
+    Returns:
+    - bool: The request_changes status.
+    """
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                f"SELECT request_changes FROM {table} WHERE user_id = %s", (user_id,)
+            )
+            result = cursor.fetchone()
+            if result:
+                return result[0]
+            else:
+                return True  # Default to True if no record is found
+    except Exception as e:
+        print(f"Error fetching request_changes from {table}: {e}")
+        return True
+
+
+def update_request_changes(user_id, table, status, conn):
+    """
+    Update the request_changes status for the specified user in the given table.
+
+    Args:
+    - user_id (str): The user's unique identifier.
+    - table (str): The table name to update the status in.
+    - status (bool): The new request_changes status.
+    - conn: Database connection object.
+    """
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                f"UPDATE {table} SET request_changes = %s WHERE user_id = %s",
+                (status, user_id),
+            )
+            conn.commit()
+    except Exception as e:
+        print(f"Error updating request_changes in {table}: {e}")
