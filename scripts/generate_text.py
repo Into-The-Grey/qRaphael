@@ -7,7 +7,6 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from dotenv import load_dotenv
 from logic.text_chat_logic import get_followup_message
 from logic.model_memory_logic import (
-    add_user,
     connect_db,
     fetch_user_memory,
     save_user_memory,
@@ -35,7 +34,6 @@ from logic.model_memory_logic import (
     fetch_security_info,
     fetch_miscellaneous_info,
     fetch_user_name,
-    update_request_changes,
     update_user_name,
     get_raphael_identity,
     get_suggestions,
@@ -135,9 +133,25 @@ def load_config(config_file):
     return config
 
 
-def generate_text(prompt, model, tokenizer, config, user_memory):
+def generate_text(
+    prompt,
+    model,
+    tokenizer,
+    config,
+    user_memory,
+    user_details,
+    user_preferences,
+    user_medical,
+    user_financial,
+    user_professional,
+    user_education,
+    user_social,
+    user_security,
+    user_miscellaneous,
+    user_interests,
+):
     """
-    Generate text based on the provided prompt and user memory.
+    Generate text based on the provided prompt, user memory, and user details.
 
     Args:
     - prompt (str): The prompt to generate text from.
@@ -145,18 +159,63 @@ def generate_text(prompt, model, tokenizer, config, user_memory):
     - tokenizer: The tokenizer used for text generation.
     - config (dict): The generation configuration parameters.
     - user_memory (str): The user's conversation history.
+    - user_details (dict): The user's personal details.
+    - user_preferences (dict): The user's preferences.
+    - user_medical (dict): The user's medical details.
+    - user_financial (dict): The user's financial details.
+    - user_professional (dict): The user's professional details.
+    - user_education (dict): The user's educational details.
+    - user_social (dict): The user's social details.
+    - user_security (dict): The user's security details.
+    - user_miscellaneous (dict): The user's miscellaneous details.
+    - user_interests (dict): The user's preferences and interests.
 
     Returns:
     - str: The generated text.
     """
-    combined_prompt = f"{user_memory}\n\n{prompt}"
+    combined_prompt = (
+        user_memory
+        + "\n"
+        + prompt
+        + "\n"
+        + "User Details: "
+        + json.dumps(user_details)
+        + "\n"
+        + "User Preferences: "
+        + json.dumps(user_preferences)
+        + "\n"
+        + "User Medical: "
+        + json.dumps(user_medical)
+        + "\n"
+        + "User Financial: "
+        + json.dumps(user_financial)
+        + "\n"
+        + "User Professional: "
+        + json.dumps(user_professional)
+        + "\n"
+        + "User Education: "
+        + json.dumps(user_education)
+        + "\n"
+        + "User Social: "
+        + json.dumps(user_social)
+        + "\n"
+        + "User Security: "
+        + json.dumps(user_security)
+        + "\n"
+        + "User Miscellaneous: "
+        + json.dumps(user_miscellaneous)
+        + "\n"
+        + "User Interests: "
+        + json.dumps(user_interests)
+    )
 
     inputs = tokenizer(combined_prompt, return_tensors="pt").to(
         "cuda" if torch.cuda.is_available() else "cpu"
     )
     outputs = model.generate(
         inputs.input_ids,
-        max_new_tokens=config["max_new_tokens"],
+        max_length=config["max_length"],
+        max_time=config["max_time"],
         do_sample=config["do_sample"],
         temperature=config["temperature"],
         top_k=config["top_k"],
@@ -172,7 +231,7 @@ def generate_text(prompt, model, tokenizer, config, user_memory):
             generated_text = generated_text[: generated_text.rfind(punct) + 1]
             break
 
-    return generated_text.strip()
+    return generated_text
 
 
 def handle_raphael_identity():
@@ -216,21 +275,6 @@ def main():
     conn = connect_db()
 
     user_id = args.user_id
-
-    # Add user to the database if they don't exist
-    user_name = fetch_user_name(user_id, conn)
-    if not user_name:
-        print("Adding new user to the database.")
-        add_user(
-            user_id,
-            "Default Name",
-            "default@example.com",
-            "000-000-0000",
-            "2000-01-01",
-            conn,
-        )
-        user_name = "Default Name"
-
     user_memory = fetch_user_memory(user_id, conn)
     user_details = fetch_user_details(user_id, conn)
     user_preferences = fetch_user_preferences(user_id, conn)
@@ -259,6 +303,8 @@ def main():
     user_security = fetch_security_info(user_id, conn)
     user_miscellaneous = fetch_miscellaneous_info(user_id, conn)
     user_interests = fetch_preferences_interests(user_id, conn)
+
+    user_name = fetch_user_name(user_id, conn)
 
     if args.loop:
         try:
@@ -289,7 +335,21 @@ def main():
                     prompt = f"{user_name}, {prompt}"
 
                 generated_text = generate_text(
-                    prompt, model, tokenizer, config, user_memory
+                    prompt,
+                    model,
+                    tokenizer,
+                    config,
+                    user_memory,
+                    user_details,
+                    user_preferences,
+                    user_medical,
+                    user_financial,
+                    user_professional,
+                    user_education,
+                    user_social,
+                    user_security,
+                    user_miscellaneous,
+                    user_interests,
                 )
                 print(generated_text)
                 logger.info(f"Generated text for prompt '{prompt}': {generated_text}")
@@ -301,19 +361,6 @@ def main():
                 # Get the follow-up message
                 followup_message = get_followup_message(prompt, generated_text)
                 print(followup_message)
-
-                # Ask if the user wants to set a note to avoid asking for changes again
-                print(
-                    "If you'd like, I can set a note for myself not to ask you about changing these anymore? But don't worry, just say the word, and I'll change anything you want, anytime!"
-                )
-                response = (
-                    input("Do you want to set this note? (yes/no): ").strip().lower()
-                )
-                if response == "yes":
-                    update_request_changes(user_id, "medical_conditions", False, conn)
-                else:
-                    update_request_changes(user_id, "medical_conditions", True, conn)
-
         except KeyboardInterrupt:
             print("\nExiting loop mode.")
             logger.info("Exiting loop mode.")
@@ -347,7 +394,21 @@ def main():
                 args.prompt = f"{user_name}, {args.prompt}"
 
             generated_text = generate_text(
-                args.prompt, model, tokenizer, config, user_memory
+                args.prompt,
+                model,
+                tokenizer,
+                config,
+                user_memory,
+                user_details,
+                user_preferences,
+                user_medical,
+                user_financial,
+                user_professional,
+                user_education,
+                user_social,
+                user_security,
+                user_miscellaneous,
+                user_interests,
             )
             print(generated_text)
             logger.info(f"Generated text for prompt '{args.prompt}': {generated_text}")
