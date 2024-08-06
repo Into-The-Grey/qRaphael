@@ -1,5 +1,5 @@
 import os
-from github import Github
+from github import Github # type: ignore
 
 # Get GitHub token from environment variables
 token = os.getenv("READ_GEN_TOKEN")
