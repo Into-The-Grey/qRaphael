@@ -33,8 +33,11 @@ from logic.model_memory_logic import (
     fetch_social_connections,
     fetch_security_info,
     fetch_miscellaneous_info,
+    fetch_user_name,
+    update_user_name,
+    get_raphael_identity,
+    get_suggestions,
 )
-
 
 # Suppress TensorFlow warnings and errors
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -230,6 +233,37 @@ def generate_text(
     return generated_text
 
 
+def handle_raphael_identity():
+    """
+    Handle questions about Raphael's identity and capabilities.
+
+    Returns:
+    - str: Raphael's identity and capabilities.
+    """
+    identity = get_raphael_identity()
+    response = f"My name is {identity['name']}, and I am {identity['role']}. Here are some things I can do:\n"
+    for capability in identity["capabilities"]:
+        response += f"- {capability}\n"
+    return response
+
+
+def handle_suggestions(user_preferences):
+    """
+    Handle requests for suggestions based on user preferences.
+
+    Args:
+    - user_preferences (dict): The user's preferences.
+
+    Returns:
+    - str: Suggestions for the user.
+    """
+    suggestions = get_suggestions(user_preferences)
+    response = "Here are some suggestions for you:\n"
+    for suggestion in suggestions:
+        response += f"- {suggestion}\n"
+    return response
+
+
 def main():
     """
     Main function to generate text based on a provided prompt or run in loop mode.
@@ -269,12 +303,36 @@ def main():
     user_miscellaneous = fetch_miscellaneous_info(user_id, conn)
     user_interests = fetch_preferences_interests(user_id, conn)
 
+    user_name = fetch_user_name(user_id, conn)
+
     if args.loop:
         try:
             while True:
                 prompt = input("Enter a prompt: ")
                 if not prompt.strip():
                     continue
+
+                if "what is your name" in prompt.lower():
+                    print(handle_raphael_identity())
+                    continue
+
+                if "what can you do" in prompt.lower() or "help" in prompt.lower():
+                    print(handle_raphael_identity())
+                    continue
+
+                if "suggest" in prompt.lower() or "what should I do" in prompt.lower():
+                    print(handle_suggestions(user_preferences))
+                    continue
+
+                if "my name is" in prompt.lower():
+                    user_name = prompt.split("is")[-1].strip()
+                    update_user_name(user_id, user_name, conn)
+                    print(f"Nice to meet you, {user_name}!")
+                    continue
+
+                if user_name:
+                    prompt = f"{user_name}, {prompt}"
+
                 generated_text = generate_text(
                     prompt,
                     model,
@@ -307,6 +365,33 @@ def main():
             logger.info("Exiting loop mode.")
     else:
         if args.prompt:
+            if "what is your name" in args.prompt.lower():
+                print(handle_raphael_identity())
+                return
+
+            if (
+                "what can you do" in args.prompt.lower()
+                or "help" in args.prompt.lower()
+            ):
+                print(handle_raphael_identity())
+                return
+
+            if (
+                "suggest" in args.prompt.lower()
+                or "what should I do" in args.prompt.lower()
+            ):
+                print(handle_suggestions(user_preferences))
+                return
+
+            if "my name is" in args.prompt.lower():
+                user_name = args.prompt.split("is")[-1].strip()
+                update_user_name(user_id, user_name, conn)
+                print(f"Nice to meet you, {user_name}!")
+                return
+
+            if user_name:
+                args.prompt = f"{user_name}, {args.prompt}"
+
             generated_text = generate_text(
                 args.prompt,
                 model,
