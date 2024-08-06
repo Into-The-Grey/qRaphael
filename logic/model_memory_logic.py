@@ -830,3 +830,29 @@ def update_request_changes(user_id, table, status, conn):
             conn.commit()
     except Exception as e:
         print(f"Error updating request_changes in {table}: {e}")
+
+
+def add_user(user_id, name, email, phone, birthday, conn):
+    """
+    Add a new user to the database.
+
+    Args:
+    - user_id (str): The user's unique identifier.
+    - name (str): The user's name.
+    - email (str): The user's email.
+    - phone (str): The user's phone number.
+    - birthday (str): The user's birthday.
+    - conn: Database connection object.
+    """
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO users (user_id, name, email, phone, birthday)
+                VALUES (%s, %s, %s, %s, %s)
+            """,
+                (user_id, name, email, phone, birthday),
+            )
+            conn.commit()
+    except Exception as e:
+        print(f"Error adding user: {e}")
