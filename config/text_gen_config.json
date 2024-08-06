@@ -1,5 +1,5 @@
 {
-  "max_length": 100,
+  "max_length": 300,
   "do_sample": true,
   "temperature": 0.7,
   "top_k": 50,
