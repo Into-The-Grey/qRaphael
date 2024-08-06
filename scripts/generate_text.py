@@ -149,7 +149,6 @@ def generate_text(prompt, model, tokenizer, config, user_memory):
     Returns:
     - str: The generated text.
     """
-    # Combine user memory and prompt
     combined_prompt = f"{user_memory}\n\n{prompt}"
 
     inputs = tokenizer(combined_prompt, return_tensors="pt").to(
@@ -157,7 +156,7 @@ def generate_text(prompt, model, tokenizer, config, user_memory):
     )
     outputs = model.generate(
         inputs.input_ids,
-        max_length=config["max_length"],
+        max_new_tokens=config["max_new_tokens"],
         do_sample=config["do_sample"],
         temperature=config["temperature"],
         top_k=config["top_k"],
@@ -348,12 +347,8 @@ def main():
                 args.prompt = f"{user_name}, {args.prompt}"
 
             generated_text = generate_text(
-                args.prompt,
-                model,
-                tokenizer,
-                config,
-                user_memory
-     )
+                args.prompt, model, tokenizer, config, user_memory
+            )
             print(generated_text)
             logger.info(f"Generated text for prompt '{args.prompt}': {generated_text}")
 
