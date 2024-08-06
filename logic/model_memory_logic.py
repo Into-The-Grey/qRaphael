@@ -5,6 +5,7 @@
 import os
 import psycopg2
 from dotenv import load_dotenv
+import random
 
 # Load environment variables from .env file
 load_dotenv()
@@ -76,6 +77,105 @@ def save_user_memory(user_id, user_memory, conn):
             conn.commit()
     except Exception as e:
         print(f"Error saving user memory: {e}")
+
+
+def fetch_user_name(user_id, conn):
+    """
+    Fetch the user's name from the database.
+
+    Args:
+    - user_id (str): The user's unique identifier.
+    - conn: Database connection object.
+
+    Returns:
+    - str: The user's name.
+    """
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+            result = cursor.fetchone()
+            if result:
+                return result[0]
+            else:
+                return None
+    except Exception as e:
+        print(f"Error fetching user name: {e}")
+        return None
+
+
+def update_user_name(user_id, name, conn):
+    """
+    Update the user's name in the database.
+
+    Args:
+    - user_id (str): The user's unique identifier.
+    - name (str): The user's name.
+    - conn: Database connection object.
+    """
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "UPDATE users SET name = %s WHERE user_id = %s", (name, user_id)
+            )
+            conn.commit()
+    except Exception as e:
+        print(f"Error updating user name: {e}")
+
+
+def get_raphael_identity():
+    """
+    Get Raphael's identity and capabilities.
+
+    Returns:
+    - dict: Raphael's identity and capabilities.
+    """
+    identities = [
+        "your personal assistant",
+        "an assistant of sorts",
+        "your AI assistant",
+        "your digital assistant",
+        "a helpful assistant",
+    ]
+    capabilities = [
+        "I can help you manage your schedule.",
+        "I can provide information on various topics.",
+        "I can assist with your daily tasks.",
+        "I can offer suggestions on things to do.",
+        "I can help you track your health and fitness.",
+        "I can assist with managing your finances.",
+    ]
+    identity = {
+        "name": "Raphael",
+        "role": random.choice(identities),
+        "capabilities": capabilities,
+    }
+    return identity
+
+
+def get_suggestions(user_preferences):
+    """
+    Get suggestions for the user based on their preferences.
+
+    Args:
+    - user_preferences (dict): The user's preferences.
+
+    Returns:
+    - list: Suggestions for the user.
+    """
+    suggestions = [
+        "How about going for a walk?",
+        "Maybe you could read a book.",
+        "How about cooking a new recipe?",
+        "You could watch a movie.",
+        "Why not try a new hobby?",
+    ]
+    if user_preferences:
+        # Customize suggestions based on user preferences (this is a basic example)
+        if "outdoors" in user_preferences.get("hobbies", "").lower():
+            suggestions.append("How about a hike?")
+        if "reading" in user_preferences.get("hobbies", "").lower():
+            suggestions.append("You could read a new book.")
+    return random.sample(suggestions, 3)
 
 
 # The following functions interact with the database to fetch user data
@@ -681,4 +781,4 @@ def fetch_debts(user_id, conn):
             {"debt_type": result[0], "debt_amount": result[1], "debt_date": result[2]}
             for result in results
         ]
-        return debts
+        return debts    
