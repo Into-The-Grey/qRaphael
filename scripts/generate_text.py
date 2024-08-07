@@ -1,4 +1,3 @@
-import model_loader
 import argparse
 import json
 import logging
@@ -39,6 +38,7 @@ from logic.model_memory_logic import (
     fetch_user_name,
     update_user_name,
 )
+import model_storage  # Import the model storage module
 
 # Suppress TensorFlow warnings and errors
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -177,8 +177,8 @@ def generate_text(
 
 def main():
     logger.info("Starting text generation...")
-    tokenizer = model_loader.tokenizer
-    model = model_loader.model
+    tokenizer = model_storage.tokenizer
+    model = model_storage.model
     config = load_config(CONFIG_FILE)
     conn = connect_db()
     user_id = args.user_id
