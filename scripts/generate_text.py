@@ -75,7 +75,7 @@ os.makedirs(LOG_DIR, exist_ok=True)
 log_level = getattr(logging, args.log_level.upper(), logging.INFO)
 logging.basicConfig(
     level=log_level,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    format="%(asctime)s - %(name)s - %(levellevel)s - %(message)s",
     handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
