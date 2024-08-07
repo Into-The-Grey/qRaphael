@@ -1,0 +1,16 @@
+name: Greetings
+
+on: [pull_request_target, issues]
+
+jobs:
+  greeting:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+    - uses: actions/first-interaction@v1
+      with:
+        repo-token: ${{ secrets.READ_GEN_TOKEN }}
+        issue-message: "Great job! Every issue posted means one less to find! You're the best! If you're feeling frogy, take a crack at that issue, we can have a little race!"
+        pr-message: "I'm excited to see what improvments you've made! Maybe even a little jealous that I didn't make it! HAHA, just kidding, thanks for the improvment! PS. If you want to make it a more permanent event, shoot me an email: ncacord@protonmail.com, I am sure you'd make a great addition to the team!"
