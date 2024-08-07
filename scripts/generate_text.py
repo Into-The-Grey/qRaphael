@@ -1,50 +1,27 @@
-# scripts/generate_text.py
+# generate_text.py
 
-import argparse
-import logging
-import os
-import json
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+import model_loader
+import argparse, json, logging, os, torch
+import tensorflow as tf
 from dotenv import load_dotenv
+from transformers import AutoTokenizer
 from logic.text_chat_logic import get_followup_message
+from logic.utils import load_config, handle_raphael_identity, handle_suggestions
 from logic.model_memory_logic import (
-    connect_db,
-    fetch_user_memory,
-    save_user_memory,
-    fetch_user_details,
-    fetch_user_preferences,
-    fetch_medical_conditions,
-    fetch_medications,
-    fetch_immunizations,
-    fetch_doctor_visits,
-    fetch_insurance_info,
-    fetch_health_metrics,
-    fetch_investments,
-    fetch_retirement_accounts,
-    fetch_tax_information,
-    fetch_expense_tracking,
-    fetch_cards,
-    fetch_bank_accounts,
-    fetch_loans,
-    fetch_salaries,
-    fetch_debts,
-    fetch_professional_info,
-    fetch_educational_data,
-    fetch_preferences_interests,
-    fetch_social_connections,
-    fetch_security_info,
-    fetch_miscellaneous_info,
-    fetch_user_name,
-    update_user_name,
-    get_raphael_identity,
-    get_suggestions,
+    connect_db, fetch_user_memory, save_user_memory, fetch_user_details,
+    fetch_user_preferences, fetch_medical_conditions, fetch_medications,
+    fetch_immunizations, fetch_doctor_visits, fetch_insurance_info,
+    fetch_health_metrics, fetch_investments, fetch_retirement_accounts,
+    fetch_tax_information, fetch_expense_tracking, fetch_cards,
+    fetch_bank_accounts, fetch_loans, fetch_salaries, fetch_debts,
+    fetch_professional_info, fetch_educational_data,
+    fetch_preferences_interests, fetch_social_connections,
+    fetch_security_info, fetch_miscellaneous_info, fetch_user_name,
+    update_user_name
 )
 
 # Suppress TensorFlow warnings and errors
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
-import tensorflow as tf
-
 tf.get_logger().setLevel("ERROR")
 
 # Load environment variables from .env file
@@ -52,37 +29,21 @@ load_dotenv()
 
 # Load generation parameters from the configuration file
 CONFIG_FILE = "/home/ncacord/qRaphael/config/text_gen_config.json"
+PARSE_CONFIG_FILE = "/home/ncacord/qRaphael/config/parse_config.json"
 
 # Define constants
 LOG_DIR = "/home/ncacord/qRaphael/logs/standard/"
 LOG_FILE = os.path.join(LOG_DIR, "text_generation_logs.log")
 
-# Argument parser setup
-parser = argparse.ArgumentParser(description="Generate text using a quantized model.")
-parser.add_argument("--prompt", type=str, help="The prompt to generate text from.")
-parser.add_argument(
-    "--user_id",
-    type=str,
-    required=True,
-    help="Unique identifier for the user to maintain session memory.",
-)
-parser.add_argument(
-    "--max_length",
-    type=int,
-    default=50,
-    help="The maximum length of the generated text.",
-)
-parser.add_argument(
-    "--log_level",
-    type=str,
-    default="INFO",
-    help="Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).",
-)
-parser.add_argument(
-    "--loop",
-    action="store_true",
-    help="Run in loop mode for interactive text generation.",
-)
+# Load and parse arguments from the configuration file
+with open(PARSE_CONFIG_FILE, "r") as f:
+    parse_config = json.load(f)
+
+parser = argparse.ArgumentParser(description=parse_config["description"])
+for arg in parse_config["arguments"]:
+    kwargs = {k: v for k, v in arg.items() if k != "name"}
+    parser.add_argument(arg["name"], **kwargs)
+
 args = parser.parse_args()
 
 # Ensure log directory exists
@@ -95,155 +56,20 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
 )
-
 logger = logging.getLogger(__name__)
 
 
-def load_config(config_file):
-    """
-    Load the configuration parameters from a JSON file.
-
-    Args:
-    - config_file (str): Path to the configuration file.
-
-    Returns:
-    - dict: The configuration parameters.
-    """
-    with open(config_file, "r") as file:
-        config = json.load(file)
-    return config
-
-
-def generate_text(
-    prompt,
-    model,
-    tokenizer,
-    config,
-    user_memory,
-    user_details,
-    user_preferences,
-    user_medical,
-    user_financial,
-    user_professional,
-    user_education,
-    user_social,
-    user_security,
-    user_miscellaneous,
-    user_interests,
-):
-    """
-    Generate text based on the provided prompt, user memory, and user details.
-
-    Args:
-    - prompt (str): The prompt to generate text from.
-    - model: The model used for text generation.
-    - tokenizer: The tokenizer used for text generation.
-    - config (dict): The generation configuration parameters.
-    - user_memory (str): The user's conversation history.
-    - user_details (dict): The user's personal details.
-    - user_preferences (dict): The user's preferences.
-    - user_medical (dict): The user's medical details.
-    - user_financial (dict): The user's financial details.
-    - user_professional (dict): The user's professional details.
-    - user_education (dict): The user's educational details.
-    - user_social (dict): The user's social details.
-    - user_security (dict): The user's security details.
-    - user_miscellaneous (dict): The user's miscellaneous details.
-    - user_interests (dict): The user's preferences and interests.
-
-    Returns:
-    - str: The generated text.
-    """
-    combined_prompt = (
-        user_memory
-        + "\n"
-        + prompt
-        + "\n"
-        + "User Details: "
-        + json.dumps(user_details)
-        + "\n"
-        + "User Preferences: "
-        + json.dumps(user_preferences)
-        + "\n"
-        + "User Medical: "
-        + json.dumps(user_medical)
-        + "\n"
-        + "User Financial: "
-        + json.dumps(user_financial)
-        + "\n"
-        + "User Professional: "
-        + json.dumps(user_professional)
-        + "\n"
-        + "User Education: "
-        + json.dumps(user_education)
-        + "\n"
-        + "User Social: "
-        + json.dumps(user_social)
-        + "\n"
-        + "User Security: "
-        + json.dumps(user_security)
-        + "\n"
-        + "User Miscellaneous: "
-        + json.dumps(user_miscellaneous)
-        + "\n"
-        + "User Interests: "
-        + json.dumps(user_interests)
-    )
-
-    inputs = tokenizer(combined_prompt, return_tensors="pt").to(
-        "cuda" if torch.cuda.is_available() else "cpu"
-    )
-    outputs = model.generate(
-        inputs.input_ids,
-        max_length=config["max_length"],
-        max_time=config["max_time"],
-        do_sample=config["do_sample"],
-        temperature=config["temperature"],
-        top_k=config["top_k"],
-        top_p=config["top_p"],
-        repetition_penalty=config["repetition_penalty"],
-    )
+def generate_text(prompt, model, tokenizer, config, user_memory, user_details, user_preferences, user_medical, user_financial, user_professional, user_education, user_social, user_security, user_miscellaneous, user_interests):
+    combined_prompt = f"{user_memory}\n{prompt}\nUser Details: {json.dumps(user_details)}\nUser Preferences: {json.dumps(user_preferences)}\nUser Medical: {json.dumps(user_medical)}\nUser Financial: {json.dumps(user_financial)}\nUser Professional: {json.dumps(user_professional)}\nUser Education: {json.dumps(user_education)}\nUser Social: {json.dumps(user_social)}\nUser Security: {json.dumps(user_security)}\nUser Miscellaneous: {json.dumps(user_miscellaneous)}\nUser Interests: {json.dumps(user_interests)}"
+    inputs = tokenizer(combined_prompt, return_tensors="pt").to("cuda" if torch.cuda.is_available() else "cpu")
+    outputs = model.generate(inputs.input_ids, max_length=config["max_length"], max_time=config["max_time"], do_sample=config["do_sample"], temperature=config["temperature"], top_k=config["top_k"], top_p=config["top_p"], repetition_penalty=config["repetition_penalty"])
     generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-    # Post-process the text to ensure it ends at a sensible point
     end_punctuation = [".", "!", "?"]
     for punct in end_punctuation:
         if punct in generated_text:
             generated_text = generated_text[: generated_text.rfind(punct) + 1]
             break
-
     return generated_text
-
-
-def handle_raphael_identity():
-    """
-    Handle questions about Raphael's identity and capabilities.
-
-    Returns:
-    - str: Raphael's identity and capabilities.
-    """
-    identity = get_raphael_identity()
-    response = f"My name is {identity['name']}, and I am {identity['role']}. Here are some things I can do:\n"
-    for capability in identity["capabilities"]:
-        response += f"- {capability}\n"
-    return response
-
-
-def handle_suggestions(user_preferences):
-    """
-    Handle requests for suggestions based on user preferences.
-
-    Args:
-    - user_preferences (dict): The user's preferences.
-
-    Returns:
-    - str: Suggestions for the user.
-    """
-    suggestions = get_suggestions(user_preferences)
-    response = "Here are some suggestions for you:\n"
-    for suggestion in suggestions:
-        response += f"- {suggestion}\n"
-    return response
 
 
 def main():
@@ -253,9 +79,6 @@ def main():
     logger.info("Starting text generation...")
 
     # Assuming the model and tokenizer are loaded and kept in memory
-    # Connecting to the model loader
-    # Note: Adjust the logic to connect to the model loader if necessary
-    import model_loader
 
     tokenizer = model_loader.tokenizer
     model = model_loader.model
@@ -302,11 +125,7 @@ def main():
                 if not prompt.strip():
                     continue
 
-                if "what is your name" in prompt.lower():
-                    print(handle_raphael_identity())
-                    continue
-
-                if "what can you do" in prompt.lower() or "help" in prompt.lower():
+                if "what is your name" in prompt.lower() or "what can you do" in prompt.lower() or "help" in prompt.lower():
                     print(handle_raphael_identity())
                     continue
 
@@ -323,23 +142,7 @@ def main():
                 if user_name:
                     prompt = f"{user_name}, {prompt}"
 
-                generated_text = generate_text(
-                    prompt,
-                    model,
-                    tokenizer,
-                    config,
-                    user_memory,
-                    user_details,
-                    user_preferences,
-                    user_medical,
-                    user_financial,
-                    user_professional,
-                    user_education,
-                    user_social,
-                    user_security,
-                    user_miscellaneous,
-                    user_interests,
-                )
+                generated_text = generate_text(args.prompt, model, tokenizer, config, user_memory, user_details, user_preferences, user_medical, user_financial, user_professional, user_education, user_social, user_security, user_miscellaneous, user_interests)
                 print(generated_text)
                 logger.info(f"Generated text for prompt '{prompt}': {generated_text}")
 
@@ -355,21 +158,11 @@ def main():
             logger.info("Exiting loop mode.")
     else:
         if args.prompt:
-            if "what is your name" in args.prompt.lower():
+            if "what is your name" in args.prompt.lower() or "what can you do" in args.prompt.lower() or "help" in args.prompt.lower():
                 print(handle_raphael_identity())
                 return
 
-            if (
-                "what can you do" in args.prompt.lower()
-                or "help" in args.prompt.lower()
-            ):
-                print(handle_raphael_identity())
-                return
-
-            if (
-                "suggest" in args.prompt.lower()
-                or "what should I do" in args.prompt.lower()
-            ):
+            if "suggest" in args.prompt.lower() or "what should I do" in args.prompt.lower():
                 print(handle_suggestions(user_preferences))
                 return
 
@@ -382,23 +175,7 @@ def main():
             if user_name:
                 args.prompt = f"{user_name}, {args.prompt}"
 
-            generated_text = generate_text(
-                args.prompt,
-                model,
-                tokenizer,
-                config,
-                user_memory,
-                user_details,
-                user_preferences,
-                user_medical,
-                user_financial,
-                user_professional,
-                user_education,
-                user_social,
-                user_security,
-                user_miscellaneous,
-                user_interests,
-            )
+            generated_text = generate_text(args.prompt, model, tokenizer, config, user_memory, user_details, user_preferences, user_medical, user_financial, user_professional, user_education, user_social, user_security, user_miscellaneous, user_interests)
             print(generated_text)
             logger.info(f"Generated text for prompt '{args.prompt}': {generated_text}")
 
@@ -406,9 +183,7 @@ def main():
             user_memory += "\n" + args.prompt + "\n" + generated_text
             save_user_memory(user_id, args.prompt + "\n" + generated_text, conn)
         else:
-            print(
-                "Error: You must provide a prompt with --prompt or use --loop for interactive mode."
-            )
+            print("Error: You must provide a prompt with --prompt or use --loop for interactive mode.")
             logger.error("No prompt provided and --loop not specified.")
 
 
