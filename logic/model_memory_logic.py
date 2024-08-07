@@ -1,47 +1,23 @@
-# /home/ncacord/qRaphael/logic/model_memory_logic.py
-
-# Logic for interacting with the database to fetch and save user memory
-
 import os
 import psycopg2
 from dotenv import load_dotenv
 import random
 
-# Load environment variables from .env file
 load_dotenv()
 
-# PostgreSQL configuration from environment variables
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 DB_NAME = os.getenv("DB_NAME")
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
-
 def connect_db():
-    """
-    Connect to the PostgreSQL database.
-
-    Returns:
-    - conn: Database connection object.
-    """
     conn = psycopg2.connect(
         host=DB_HOST, port=DB_PORT, dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD
     )
     return conn
 
-
 def fetch_user_memory(user_id, conn):
-    """
-    Fetch the user's conversation history from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - str: The user's conversation history.
-    """
     try:
         with conn.cursor() as cursor:
             cursor.execute(
@@ -55,16 +31,7 @@ def fetch_user_memory(user_id, conn):
         print(f"Error fetching user memory: {e}")
         return ""
 
-
 def save_user_memory(user_id, user_memory, conn):
-    """
-    Save the user's conversation history to the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - user_memory (str): The user's conversation history.
-    - conn: Database connection object.
-    """
     try:
         with conn.cursor() as cursor:
             cursor.execute(
@@ -78,18 +45,7 @@ def save_user_memory(user_id, user_memory, conn):
     except Exception as e:
         print(f"Error saving user memory: {e}")
 
-
 def fetch_user_name(user_id, conn):
-    """
-    Fetch the user's name from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - str: The user's name.
-    """
     try:
         with conn.cursor() as cursor:
             cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
@@ -102,16 +58,7 @@ def fetch_user_name(user_id, conn):
         print(f"Error fetching user name: {e}")
         return None
 
-
 def update_user_name(user_id, name, conn):
-    """
-    Update the user's name in the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - name (str): The user's name.
-    - conn: Database connection object.
-    """
     try:
         with conn.cursor() as cursor:
             cursor.execute(
@@ -121,14 +68,7 @@ def update_user_name(user_id, name, conn):
     except Exception as e:
         print(f"Error updating user name: {e}")
 
-
 def get_raphael_identity():
-    """
-    Get Raphael's identity and capabilities.
-
-    Returns:
-    - dict: Raphael's identity and capabilities.
-    """
     identities = [
         "your personal assistant",
         "an assistant of sorts",
@@ -151,17 +91,7 @@ def get_raphael_identity():
     }
     return identity
 
-
 def get_suggestions(user_preferences):
-    """
-    Get suggestions for the user based on their preferences.
-
-    Args:
-    - user_preferences (dict): The user's preferences.
-
-    Returns:
-    - list: Suggestions for the user.
-    """
     suggestions = [
         "How about going for a walk?",
         "Maybe you could read a book.",
@@ -170,26 +100,13 @@ def get_suggestions(user_preferences):
         "Why not try a new hobby?",
     ]
     if user_preferences:
-        # Customize suggestions based on user preferences (this is a basic example)
         if "outdoors" in user_preferences.get("hobbies", "").lower():
             suggestions.append("How about a hike?")
         if "reading" in user_preferences.get("hobbies", "").lower():
             suggestions.append("You could read a new book.")
     return random.sample(suggestions, 3)
 
-
-# The following functions interact with the database to fetch user data
 def fetch_user_details(user_id, conn):
-    """
-    Fetch the user's personal details from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - dict: The user's personal details.
-    """
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT detail_type, detail_value FROM user_details WHERE user_id = %s",
@@ -199,18 +116,7 @@ def fetch_user_details(user_id, conn):
         details = {result[0]: result[1] for result in results}
         return details
 
-
 def fetch_user_preferences(user_id, conn):
-    """
-    Fetch the user's preferences from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - dict: The user's preferences.
-    """
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT preference_type, preference_value FROM user_preferences WHERE user_id = %s",
@@ -220,18 +126,7 @@ def fetch_user_preferences(user_id, conn):
         preferences = {result[0]: result[1] for result in results}
         return preferences
 
-
 def fetch_medical_conditions(user_id, conn):
-    """
-    Fetch the user's medical conditions from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - list: The user's medical conditions.
-    """
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT condition_name, diagnosis_date, status FROM medical_conditions WHERE user_id = %s",
@@ -248,18 +143,7 @@ def fetch_medical_conditions(user_id, conn):
         ]
         return conditions
 
-
 def fetch_medications(user_id, conn):
-    """
-    Fetch the user's medications from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - list: The user's medications.
-    """
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT medication_name, dosage, start_date, end_date, prescribing_doctor FROM medications WHERE user_id = %s",
@@ -278,18 +162,7 @@ def fetch_medications(user_id, conn):
         ]
         return medications
 
-
 def fetch_immunizations(user_id, conn):
-    """
-    Fetch the user's immunization records from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - list: The user's immunization records.
-    """
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT vaccine_name, vaccination_date FROM immunizations WHERE user_id = %s",
@@ -302,18 +175,7 @@ def fetch_immunizations(user_id, conn):
         ]
         return immunizations
 
-
 def fetch_doctor_visits(user_id, conn):
-    """
-    Fetch the user's doctor visit records from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - list: The user's doctor visit records.
-    """
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT doctor_name, visit_date, notes FROM doctor_visits WHERE user_id = %s",
@@ -326,18 +188,7 @@ def fetch_doctor_visits(user_id, conn):
         ]
         return visits
 
-
 def fetch_insurance_info(user_id, conn):
-    """
-    Fetch the user's insurance information from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - list: The user's insurance information.
-    """
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT provider_name, policy_number, coverage_details FROM insurance_info WHERE user_id = %s",
@@ -354,18 +205,7 @@ def fetch_insurance_info(user_id, conn):
         ]
         return insurance
 
-
 def fetch_health_metrics(user_id, conn):
-    """
-    Fetch the user's health metrics from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - list: The user's health metrics.
-    """
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT metric_name, metric_value, recorded_date FROM health_metrics WHERE user_id = %s",
@@ -382,18 +222,7 @@ def fetch_health_metrics(user_id, conn):
         ]
         return metrics
 
-
 def fetch_investments(user_id, conn):
-    """
-    Fetch the user's investments from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - list: The user's investments.
-    """
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT investment_type, investment_value, investment_date FROM investments WHERE user_id = %s",
@@ -410,18 +239,7 @@ def fetch_investments(user_id, conn):
         ]
         return investments
 
-
 def fetch_retirement_accounts(user_id, conn):
-    """
-    Fetch the user's retirement accounts from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - list: The user's retirement accounts.
-    """
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT account_type, account_value, institution FROM retirement_accounts WHERE user_id = %s",
@@ -438,18 +256,7 @@ def fetch_retirement_accounts(user_id, conn):
         ]
         return accounts
 
-
 def fetch_tax_information(user_id, conn):
-    """
-    Fetch the user's tax information from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - list: The user's tax information.
-    """
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT tax_year, filing_status, taxable_income FROM tax_information WHERE user_id = %s",
@@ -466,18 +273,7 @@ def fetch_tax_information(user_id, conn):
         ]
         return taxes
 
-
 def fetch_expense_tracking(user_id, conn):
-    """
-    Fetch the user's expense tracking information from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - list: The user's expense tracking information.
-    """
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT expense_category, expense_amount, expense_date FROM expense_tracking WHERE user_id = %s",
@@ -494,18 +290,7 @@ def fetch_expense_tracking(user_id, conn):
         ]
         return expenses
 
-
 def fetch_professional_info(user_id, conn):
-    """
-    Fetch the user's professional information from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - dict: The user's professional information.
-    """
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT employment_history, current_job, skills_certifications FROM professional_info WHERE user_id = %s",
@@ -521,18 +306,7 @@ def fetch_professional_info(user_id, conn):
         else:
             return {}
 
-
 def fetch_educational_data(user_id, conn):
-    """
-    Fetch the user's educational data from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - dict: The user's educational data.
-    """
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT degrees, courses, languages FROM educational_data WHERE user_id = %s",
@@ -544,18 +318,7 @@ def fetch_educational_data(user_id, conn):
         else:
             return {}
 
-
 def fetch_preferences_interests(user_id, conn):
-    """
-    Fetch the user's preferences and interests from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - dict: The user's preferences and interests.
-    """
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT hobbies, food_preferences, travel_preferences, entertainment FROM preferences_interests WHERE user_id = %s",
@@ -572,18 +335,7 @@ def fetch_preferences_interests(user_id, conn):
         else:
             return {}
 
-
 def fetch_social_connections(user_id, conn):
-    """
-    Fetch the user's social connections from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - dict: The user's social connections.
-    """
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT family_members, friends, social_media_accounts FROM social_connections WHERE user_id = %s",
@@ -599,18 +351,7 @@ def fetch_social_connections(user_id, conn):
         else:
             return {}
 
-
 def fetch_security_info(user_id, conn):
-    """
-    Fetch the user's security information from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - dict: The user's security information.
-    """
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT passwords, security_questions FROM security_info WHERE user_id = %s",
@@ -622,18 +363,7 @@ def fetch_security_info(user_id, conn):
         else:
             return {}
 
-
 def fetch_miscellaneous_info(user_id, conn):
-    """
-    Fetch the user's miscellaneous information from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - dict: The user's miscellaneous information.
-    """
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT vehicle_info, property_info, subscriptions, shopping_history FROM miscellaneous_info WHERE user_id = %s",
@@ -650,18 +380,7 @@ def fetch_miscellaneous_info(user_id, conn):
         else:
             return {}
 
-
 def fetch_cards(user_id, conn):
-    """
-    Fetch the user's debit/credit card information from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - list: The user's debit/credit card information.
-    """
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT card_type, card_number, expiry_date, cvv FROM cards WHERE user_id = %s",
@@ -679,18 +398,7 @@ def fetch_cards(user_id, conn):
         ]
         return cards
 
-
 def fetch_bank_accounts(user_id, conn):
-    """
-    Fetch the user's bank account information from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - list: The user's bank account information.
-    """
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT bank_name, account_number, routing_number FROM bank_accounts WHERE user_id = %s",
@@ -707,18 +415,7 @@ def fetch_bank_accounts(user_id, conn):
         ]
         return bank_accounts
 
-
 def fetch_loans(user_id, conn):
-    """
-    Fetch the user's loan information from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - list: The user's loan information.
-    """
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT loan_type, loan_amount, loan_date, due_date FROM loans WHERE user_id = %s",
@@ -736,18 +433,7 @@ def fetch_loans(user_id, conn):
         ]
         return loans
 
-
 def fetch_salaries(user_id, conn):
-    """
-    Fetch the user's salary information from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - list: The user's salary information.
-    """
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT salary_amount, salary_date FROM salaries WHERE user_id = %s",
@@ -759,18 +445,7 @@ def fetch_salaries(user_id, conn):
         ]
         return salaries
 
-
 def fetch_debts(user_id, conn):
-    """
-    Fetch the user's debt information from the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - conn: Database connection object.
-
-    Returns:
-    - list: The user's debt information.
-    """
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT debt_type, debt_amount, debt_date FROM debts WHERE user_id = %s",
@@ -781,21 +456,9 @@ def fetch_debts(user_id, conn):
             {"debt_type": result[0], "debt_amount": result[1], "debt_date": result[2]}
             for result in results
         ]
-        return debts    
-
+        return debts
 
 def fetch_request_changes(user_id, table, conn):
-    """
-    Fetch the request_changes status for the specified user from the given table.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - table (str): The table name to fetch the status from.
-    - conn: Database connection object.
-
-    Returns:
-    - bool: The request_changes status.
-    """
     try:
         with conn.cursor() as cursor:
             cursor.execute(
@@ -805,22 +468,12 @@ def fetch_request_changes(user_id, table, conn):
             if result:
                 return result[0]
             else:
-                return True  # Default to True if no record is found
+                return True
     except Exception as e:
         print(f"Error fetching request_changes from {table}: {e}")
         return True
 
-
 def update_request_changes(user_id, table, status, conn):
-    """
-    Update the request_changes status for the specified user in the given table.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - table (str): The table name to update the status in.
-    - status (bool): The new request_changes status.
-    - conn: Database connection object.
-    """
     try:
         with conn.cursor() as cursor:
             cursor.execute(
@@ -831,19 +484,7 @@ def update_request_changes(user_id, table, status, conn):
     except Exception as e:
         print(f"Error updating request_changes in {table}: {e}")
 
-
 def add_user(user_id, name, email, phone, birthday, conn):
-    """
-    Add a new user to the database.
-
-    Args:
-    - user_id (str): The user's unique identifier.
-    - name (str): The user's name.
-    - email (str): The user's email.
-    - phone (str): The user's phone number.
-    - birthday (str): The user's birthday.
-    - conn: Database connection object.
-    """
     try:
         with conn.cursor() as cursor:
             cursor.execute(
