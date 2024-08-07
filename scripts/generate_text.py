@@ -57,12 +57,14 @@ LOG_FILE = os.path.join(LOG_DIR, "text_generation_logs.log")
 
 
 def load_parse_config(parse_config_file):
+    type_mapping = {"str": str, "int": int, "float": float, "bool": bool}
     with open(parse_config_file, "r") as f:
         parse_config = json.load(f)
     parser = argparse.ArgumentParser(description=parse_config["description"])
     for arg in parse_config["arguments"]:
-        kwargs = {k: v for k, v in arg.items() if k != "name"}
-        parser.add_argument(arg["name"], **kwargs)
+        arg_type = type_mapping.get(arg["type"], str)
+        kwargs = {k: v for k, v in arg.items() if k != "name" and k != "type"}
+        parser.add_argument(arg["name"], type=arg_type, **kwargs)
     return parser.parse_args()
 
 
@@ -75,7 +77,7 @@ os.makedirs(LOG_DIR, exist_ok=True)
 log_level = getattr(logging, args.log_level.upper(), logging.INFO)
 logging.basicConfig(
     level=log_level,
-    format="%(asctime)s - %(name)s - %(levellevel)s - %(message)s",
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
