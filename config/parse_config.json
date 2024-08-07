@@ -1,0 +1,33 @@
+{
+    "description": "Generate text using a quantized model.",
+    "arguments": [
+        {
+            "name": "--prompt",
+            "type": "str",
+            "help": "The prompt to generate text from."
+        },
+        {
+            "name": "--user_id",
+            "type": "str",
+            "required": true,
+            "help": "Unique identifier for the user to maintain session memory."
+        },
+        {
+            "name": "--max_length",
+            "type": "int",
+            "default": 50,
+            "help": "The maximum length of the generated text."
+        },
+        {
+            "name": "--log_level",
+            "type": "str",
+            "default": "INFO",
+            "help": "Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)."
+        },
+        {
+            "name": "--loop",
+            "action": "store_true",
+            "help": "Run in loop mode for interactive text generation."
+        }
+    ]
+}
