@@ -7,6 +7,7 @@ import sys
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from dotenv import load_dotenv
+import model_storage  # Import the model storage module
 
 # Suppress TensorFlow warnings and errors
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -47,7 +48,9 @@ def signal_handler(sig, frame):
 
 if __name__ == "__main__":
     logger.info("Starting model loader...")
-    tokenizer, model = load_model_and_tokenizer(MODEL_SAVE_DIR)
+    model_storage.tokenizer, model_storage.model = load_model_and_tokenizer(
+        MODEL_SAVE_DIR
+    )
     logger.info("Model and tokenizer loaded successfully.")
 
     # Setting up signal handler for graceful shutdown
