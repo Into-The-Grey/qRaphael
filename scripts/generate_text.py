@@ -1,5 +1,3 @@
-# generate_text.py
-
 import model_loader
 import argparse
 import json
@@ -62,9 +60,12 @@ def load_parse_config(parse_config_file):
         parse_config = json.load(f)
     parser = argparse.ArgumentParser(description=parse_config["description"])
     for arg in parse_config["arguments"]:
-        arg_type = type_mapping.get(arg.get("type", "str"), str)
-        kwargs = {k: v for k, v in arg.items() if k != "name" and k != "type"}
-        parser.add_argument(arg["name"], type=arg_type, **kwargs)
+        if "action" in arg and arg["action"] == "store_true":
+            parser.add_argument(arg["name"], action=arg["action"], help=arg["help"])
+        else:
+            arg_type = type_mapping.get(arg.get("type", "str"), str)
+            kwargs = {k: v for k, v in arg.items() if k != "name" and k != "type"}
+            parser.add_argument(arg["name"], type=arg_type, **kwargs)
     return parser.parse_args()
 
 
@@ -77,7 +78,7 @@ os.makedirs(LOG_DIR, exist_ok=True)
 log_level = getattr(logging, args.log_level.upper(), logging.INFO)
 logging.basicConfig(
     level=log_level,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    format="%(asctime)s - %(name)s - %(levellevel)s - %(message)s",
     handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
