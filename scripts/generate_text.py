@@ -1,3 +1,5 @@
+# scripts/generate_text.py
+
 import argparse
 import logging
 import os
@@ -52,7 +54,6 @@ load_dotenv()
 CONFIG_FILE = "/home/ncacord/qRaphael/config/text_gen_config.json"
 
 # Define constants
-MODEL_SAVE_DIR = "/home/ncacord/qRaphael/models/qRaphael-2b-it"
 LOG_DIR = "/home/ncacord/qRaphael/logs/standard/"
 LOG_FILE = os.path.join(LOG_DIR, "text_generation_logs.log")
 
@@ -96,26 +97,6 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
-
-
-def load_model_and_tokenizer(model_dir):
-    """
-    Load the model and tokenizer from the specified directory.
-
-    Args:
-    - model_dir (str): The directory where the model and tokenizer are saved.
-
-    Returns:
-    - tokenizer: The tokenizer associated with the model.
-    - model: The loaded model.
-    """
-    logger.info("Loading tokenizer...")
-    tokenizer = AutoTokenizer.from_pretrained(model_dir)
-
-    logger.info("Loading model...")
-    model = AutoModelForCausalLM.from_pretrained(model_dir)
-
-    return tokenizer, model
 
 
 def load_config(config_file):
@@ -270,7 +251,15 @@ def main():
     Main function to generate text based on a provided prompt or run in loop mode.
     """
     logger.info("Starting text generation...")
-    tokenizer, model = load_model_and_tokenizer(MODEL_SAVE_DIR)
+
+    # Assuming the model and tokenizer are loaded and kept in memory
+    # Connecting to the model loader
+    # Note: Adjust the logic to connect to the model loader if necessary
+    import model_loader
+
+    tokenizer = model_loader.tokenizer
+    model = model_loader.model
+
     config = load_config(CONFIG_FILE)
     conn = connect_db()
 
