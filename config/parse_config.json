@@ -26,6 +26,7 @@
         },
         {
             "name": "--loop",
+            "type": "bool",
             "action": "store_true",
             "help": "Run in loop mode for interactive text generation."
         }

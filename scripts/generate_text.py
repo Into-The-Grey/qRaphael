@@ -62,7 +62,7 @@ def load_parse_config(parse_config_file):
         parse_config = json.load(f)
     parser = argparse.ArgumentParser(description=parse_config["description"])
     for arg in parse_config["arguments"]:
-        arg_type = type_mapping.get(arg["type"], str)
+        arg_type = type_mapping.get(arg.get("type", "str"), str)
         kwargs = {k: v for k, v in arg.items() if k != "name" and k != "type"}
         parser.add_argument(arg["name"], type=arg_type, **kwargs)
     return parser.parse_args()
